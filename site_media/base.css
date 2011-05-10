@@ -1,0 +1,79 @@
+	.normalLink{
+		color: black;
+	}
+	.hoverLink{
+		color: blue;
+	}
+	.normalBtn{
+		color: silver;
+	}
+	div.MainDiv{
+		background: white
+	}
+	div{
+		background-size: cover
+	}
+	.innerDiv{
+		position: relative
+	}
+
+	.add{
+		background : gray;
+		color: white
+	}
+	.propertiesDiv{
+	}
+	.movingDiv{
+		background : silver;
+	}
+	.content{
+		background : brown;
+	}
+	.wirehandle {
+		background : yellow
+	}
+	.buttonlabel {
+		background: khaki;
+		color: black;
+		position: absolute;
+		width: 100px;
+		height: 30px
+	
+	}
+
+	.over{
+		background : pink
+	}
+	.marked{
+		background : red
+	}
+	.orange{
+		background: white;
+		border-style: solid
+	}
+	.pink{
+		background: pink
+	}
+	.brown{
+		background: brown
+	}
+	.white{
+		background: white
+	}
+	.blue{
+		background: blue
+	}
+	.wire{
+		background: black;
+	}
+	.updown{
+		color: yellow;
+	}
+	.classNameDiv{
+		font-weight: bold;
+		text-align: center
+	}
+	.deleteBtn{
+		color: silver;
+	}
+

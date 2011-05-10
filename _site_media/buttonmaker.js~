@@ -1,0 +1,459 @@
+/* for testing: 
+var btn = document.getElementById('wh_id_div26id_div28');
+wm.__marked_info.obj = {className: 'wirehandle'};
+moveManager._move_wire({x: 0, y: -100}, btn);
+*/
+var toInt = function(val){return parseInt(val, 10);};
+
+var buttonMaker = {
+	height: 15, width: 15, // default size of the button 
+
+	moveButton: function(obj){
+			var tmp = document.getElementById('r'+obj.id);
+			buttonMaker._setPos(obj, tmp, "widehigh");
+	},
+
+	addLabel: function(btnId, formId){
+		var btn = document.getElementById(btnId);
+
+		var div = wm.createWindow({//document.createElement('div');
+			width: 100,
+			height: 100,
+			top: 100, 
+			left: 100, 
+			className: 'buttonlabel',
+			moveable: true,
+			notResizable: false
+		});
+
+		div.id = idManager.getNewId();
+		div.innerHTML = $("#idlabel").val();
+//		div.className = 'buttonlabel';
+		div.style.left = btn.getAbsolutePos().x + defaults.wireLabelDiffX;
+		div.style.top = btn.getAbsolutePos().y + defaults.wireLabelDiffY;
+		btn.label= div;
+
+		document.getElementById('main_div').appendChild(div);
+		buttonMaker.closeLabelForm(formId);
+	},
+
+	closeLabelForm: function(id){
+		$('#'+id).remove();
+	},
+
+	// creates button for resizing windows
+	// obj - div that will be resizable throught created window
+	createBtn: function(obj){
+		var style = this._getStyleTxt('yellow', defaults.resizeButtonWidth, defaults.resizeButtonHeight);
+		var txt = '<div class="cres"';
+		txt += ' id="r' + obj.id + '"';
+		txt += ' style="' + style + '"';
+		txt += '" onmousedown="wm.markResized(\'' + obj.id + '\')"';// obj.id is the id of the object which must be resized
+		txt += '</div>';
+		$(obj).append(txt);
+		this._setPos(obj, document.getElementById('r' + obj.id), "widehigh");
+	},
+
+	// associates button to wire1, sets wire1 as a first connected wire, and wire2 as second connected wire
+	// sets place as place, sets wire1 pos as w1pos (should be same as place)
+	createWireBtn: function(wire1, wire2, place, w1pos, w2pos, id){
+		var btn = this._createWireBtnHtml(wire1, id);
+		$(wire1).append(btn.txt);
+		
+		var ret = document.getElementById(btn.id);
+		ret._parent = wire1;
+		this._setPos(ret._parent, ret, place);
+		ret.place = place;
+		
+		ret.conn = {};
+		ret.conn.one = {};
+		ret.conn.one.pos = w1pos;
+		ret.conn.one.wire = wire1;
+		ret.conn.two = {};
+		ret.conn.two.pos = w2pos;// position at which button is attached to wire two
+		ret.conn.two.wire = wire2;
+
+		wire1.btns.push(ret);
+
+		ret.getAbsolutePos = function(){
+			return {x: toInt(this.style.left) + toInt(this.parentNode.style.left),
+				y: toInt(this.style.top) + toInt(this.parentNode.style.top)};
+		};
+
+		// assigns all data excep nextBtn and prevBtn
+		// to the cloned button argument all necessary model data that needs to be copied
+		ret.getDataToCopy = function(clone){
+			var props = ['first', 'last', 'parentLogic', 'label'];
+			for(var i=0; i<props.length; i++){
+				if(this[props[i]]){
+					clone[props[i]] = this[props[i]];
+				}
+			}
+/*			if(this.first) clone.first = this.first;	
+			if(this.last) clone.last = this.last;
+			if(this.parentLogic) clone.parentLogic = this.parentLogic;
+			if(this.label) clone.label = this.label;*/
+
+			if(this.first){
+				clone.connection_id = this.connection_id;
+				clone.connection_type = this.connection_type;
+			}
+		};
+
+		// events
+		ret.onmousedown = wm._manageMouseDown;
+		ret.onmouseup = function(e){
+			this.redraw();	
+			if(wm.__marked_info.type=== 'moving_wire'){
+				wm.__marked_info.obj = wm.__marked_info.type = undefined;
+			}
+		};
+
+		// works only in split wire mode
+		ret.onmouseover = function(){
+			var type = wm.__marked_info.type;
+			if(type === 'split_wire' || type === 'delete_wire' || type === 'cut_wire' || type === 'add_label_wire'){
+				var width = defaults.wireMovingButtonWidth;
+				var height = defaults.wireMovingButtonHeight;
+				var num = 3;
+				if(this.last){
+					width = defaults.wireMovingButtonEndWidth;
+					height =defaults.wireMovingButtonEndWidth;
+					num = 2;
+				}
+				this.style.width = num * width;
+				this.style.height = num * height;
+			}
+		};
+		
+		// works in split_wire adn delete_wire mode
+		ret.onmouseout = function(){
+			var type = wm.__marked_info.type;
+			if(type === 'split_wire' || type === 'delete_wire' || type === 'cut_wire' || type === 'add_label_wire'){
+				if(this.last){
+					this.style.width = defaults.wireMovingButtonEndWidth;
+					this.style.height = defaults.wireMovingButtonEndHeight;
+				} else {
+					this.style.width = defaults.wireMovingButtonWidth; this.style.height = defaults.wireMovingButtonHeight;
+				}
+			}
+		};
+
+		// works only in "split_wire" mode
+		// used to split wires
+		ret.onclick = function(){
+			var type = wm.__marked_info.type;
+			if(type === 'split_wire'){
+				this.style.width = defaults.wireMovingButtonWidth; this.style.height = defaults.wireMovingButtonHeight;
+				connector.addWire(this);	
+				this.style.width = defaults.wireMovingButtonWidth; this.style.height = defaults.wireMovingButtonWidth;
+				tm.destroyToolTip();
+			} else if(type === 'delete_wire'){
+				// get information about connection to remove
+				var first = this.firstButton(), last = this.lastButton();
+				var viewFirst = first.parentLogic, viewLast = last.parentLogic;
+				var model1_id = viewFirst._modelId, model2_id = viewLast._modelId;
+				var connection_id = first.connection_id;
+
+				// call proper controller method
+				controller.deleteConnection(model1_id, model2_id, connection_id);
+
+				// destroy tooltip
+				tm.destroyToolTip();
+			} else if(type === 'change_connection_type'){
+				return;
+			} else if(type === 'add_label_wire'){
+				var form = genericgui.createForm();
+				form.id = idManager.getNewId();
+				var inner = 'Enter label here: ';
+				inner += widgetGenerator.input('idlabel', this.label_text || defaults.wireLabel);
+				inner += widgetGenerator.submitButton('buttonMaker.addLabel', genericgui.getParams(this.id, form.id), 'Add label');
+				// TODO: do sth with below code :)
+				inner += widgetGenerator.submitButton('buttonMaker.closeLabelForm', genericgui.getParams(form.id), 'cancel');
+				form.appendChild(genericgui.createNewDiv(inner));
+				tm.destroyToolTip();
+			} else if(type === 'cut_wire'){
+				// restore original box size
+				this.style.width = defaults.wireMovingButtonWidth; this.style.height = defaults.wireMovingButtonWidth;
+				if(!this.first && !this.last){
+					alert('can cut only first and last button');
+					return;
+				}
+				// check if there's enough boxes to cut
+				if(this.first){
+					var btn = this;
+					for(var i=0;i<2;i++){
+						btn = btn.nextBtn;
+					}
+					if(btn.last){
+						alert('too little boxes');
+						return;
+					}
+				} else {
+					var btn = this;
+					for(var i=0; i<2; i++){
+						btn = btn.prevBtn;
+					}
+					if(btn.first){
+						alert('too little boxes');
+						return;
+					}
+				}
+				var updateParentLogic = function(removed, added){
+					// update parentLogic
+					for(var i=0; i<removed.parentLogic.connections.length; i++){
+						if(removed.parentLogic.connections[i].btn.id === removed.id)break;
+					}
+					removed.parentLogic.connections[i] = {btn:added};
+				};
+				var orient = this.conn.one.wire.orientation;
+				var move = moveManager._move_wire_by_diff;
+
+				var key = undefined, opposite = undefined, button = undefined;
+				var diffY = 0, diffX = 0;
+				if(orient === 'high'){
+					// now we assume that this.first
+					key='nextBtn'; opposite='prevBtn'; button = 'two';
+					if(this.last){
+						key = 'prevBtn'; opposite = 'nextBtn'; button = 'one';
+					}
+					var diffY = toInt(this.conn.one.wire.style.height);
+				} else {// wide
+					// now we assume that this.first
+					key='nextBtn'; opposite='prevBtn'; button = 'two';
+					if(this.last){
+						key = 'prevBtn'; opposite = 'nextBtn'; button = 'one';
+					}
+					var diffX = toInt(this.conn.one.wire.style.width);	
+				}
+
+
+				var next1 = this[key];
+				var next2 = this[key][key];
+				if(this.conn.one.pos === 'widehigh'){//btn on the bottom
+					;
+				} else {// btn on the top
+					diffY = -diffY;
+					diffX = -diffX;
+				}
+				moveManager._move_wire({x: diffX, y: diffY} , next2);
+
+	var clone = buttonMaker.createWireBtn(next1.conn[button].wire, undefined, next1.conn[button].pos, next1.conn[button].pos, undefined);
+
+				this.getDataToCopy(clone);// load clone with all necessary data from this
+				clone[key]= next2;
+				clone[opposite] = undefined;
+	
+				
+				// update next2
+				next2[opposite] = clone;
+
+				// update parentLogic
+				for(var i=0; i<this.parentLogic.connections.length; i++){
+					if(this.parentLogic.connections[i].btn.id === this.id)break;
+				}
+				this.parentLogic.connections[i] = {btn:clone};
+
+				// add new box
+				next1.conn[button].wire.appendChild(clone);
+				buttonMaker._setPos(clone.conn.one.wire, clone, clone.place);
+
+				// remove unused wire
+				$(this.conn.one.wire).remove();
+				// remove unused button
+				$(next1).remove();
+
+				clone.redraw();
+			}	
+		};
+
+
+		ret.onmousedown = function(e){
+			// because when clicking on the box to resize, the event is automatically passed to the upper element
+			if(wm.__marked_info.type=='resize')return;
+			// if there's just marked object - return
+			if(wm.__marked_info.obj)return;
+
+
+			wm.__marked_info.type = 'moving_wire';
+			wm.__marked_info.obj = this;
+			
+			wm.__marked_info.top = this._parent.style.top;
+			wm.__marked_info.left = this._parent.style.left;
+			wm.__marked_info.pageX = e.pageX;
+			wm.__marked_info.pageY = e.pageY;
+
+			wm.__marked_info.diffX = e.pageX - toInt(this.style.left);
+			wm.__marked_info.diffY = e.pageY - toInt(this.style.top);
+
+			document.onmousemove = moveManager.moveMarked;
+		};
+
+	
+		ret.toSerialize = function(){
+			var obj = baseToSerialize.call(this);
+
+			obj.parentNodeId = btn.parentNode.id;
+			obj.conn = {
+				one: {
+					wire: btn.conn.one.wire.id,
+					pos: btn.conn.one.pos
+				}
+			};
+			if(btn.conn.two.wire){
+				obj.conn.two = {
+					wire: btn.conn.two.wire.id,
+					pos: btn.conn.two.pos
+				};
+			}
+			if(btn.nextBtn){
+				obj.nextBtn = btn.nextBtn.id;
+			}
+			if(btn.prevBtn){	
+				obj.prevBtn = btn.prevBtn.id;
+			}
+			if(btn.first){
+				obj.first = true;
+			}
+			if(btn.last){
+				obj.last = true;
+			}
+			if(btn.parentLogic){
+				obj.parentLogic = btn.parentLogic.id;
+			}
+	
+			return obj;
+		};
+
+		// returns first button in the chain
+		ret.firstButton = function(){
+			var btn = this;
+			while(!btn.first)btn=btn.prevBtn;
+			return btn;
+		};
+
+		// returns last button in the chain
+		ret.lastButton = function(){
+			var btn = this;
+			while(!btn.last)btn=btn.nextBtn;
+			return btn;
+		};
+
+		ret.redraw = function(){
+			// get here information about connection
+			var connection_type = this.firstButton().connection_type;
+
+			// draw info associated with connection type
+		this.lastButton().drawSign(connection_type);	
+		};
+
+		
+		ret.drawSign = function(type){
+			var imgName = '/site_media/' + type + this.conn.one.pos.substring(0,3) + this.conn.one.wire.orientation.substring(0,3) + '.png';
+			var newImage = 'url("' + imgName + '")';
+			
+			this.style.backgroundImage = newImage;
+			this.style.width = this.style.height = '30px';
+		};
+
+		return ret;
+	},
+
+	// creates button for moving objects
+	createMovingBtn: function(ret){
+		var movingDiv = document.createElement('div');
+		movingDiv.id = idManager.getNewId();
+
+		movingDiv.className = 'movingDiv';
+		movingDiv.style.height = 10;
+		movingDiv.style.width = "100%";
+		movingDiv.style.left = 0;
+		movingDiv.style.top = 0;
+
+		movingDiv.getBoundingBox = function(){
+			return {
+				ne: {x: toInt(this.style.left) + toInt(this.style.width), y: toInt(this.style.top)},
+				sw: {x: toInt(this.style.left), y: toInt(this.style.top) + toInt(this.style.height)}
+			};
+		};
+
+		movingDiv._parent = ret;
+		wm._assignEvents(movingDiv);
+
+		movingDiv.onmousedown = function(e){	
+			// because when clicking on the box to resize, the event is automatically passed to the upper element
+			if(wm.__marked_info.type=='resize'){return;};
+
+			// if there's just marked object - return
+			if(wm.__marked_info.obj){return;};
+
+			wm.__marked_info.type = 'down';
+		
+			wm.__marked_info.top = this._parent.style.top;
+			wm.__marked_info.left = this._parent.style.left;
+			wm.__marked_info.obj = this._parent;
+			var obj = this._parent;
+			wm.__marked_info.diffX = e.pageX - toInt(obj.style.left);
+			wm.__marked_info.diffY = e.pageY - toInt(obj.style.top);
+			document.onmousemove = moveManager.moveMarked;
+		};
+
+		ret.appendChild(movingDiv);
+	},
+
+	// creates button for connecting object with another object by wire
+	createConnectBtn: function(wdw, text, fnc){
+		var id = idManager.getNewId()
+		var callback = fnc || "wm.connectInheritance";
+		var btn = '<input id="' + id + '" type="submit" value="' + text + '" onclick="' + callback + '(\'' + wdw.id + '\');">';
+		if(fnc){
+			btn
+		}
+		$(wdw).append(btn);
+		var ret = document.getElementById(id);
+		ret.onclick = (function(obj){
+			return function(e){
+				if(wm.connecting)return;
+				return wm[callback.substring(3)](e, obj.id);
+			};
+		})(wdw);
+	}, 
+
+
+	_getStyleTxt: function(bckg, width, height){
+		var ret =  'width: ' + width + 'px; height: ' + height + 'px;';
+		ret += ' position: absolute; background: ' + bckg ;
+		return ret;
+	},
+
+	_createWireBtnHtml: function(wire, id){
+		var txt = '<div class="wirehandle"';
+		var style = this._getStyleTxt('white', defaults.wireMovingButtonWidth, defaults.wireMovingButtonHeight);
+		var btnid = undefined;
+		if(id){
+			btnid = id;
+		} else {
+			btnid = 'wh_' + wire.id + idManager.getNewId();
+		}
+		txt += ' id="' + btnid + '"';
+		txt += ' style="' + style +'"';
+		txt += '</div>';
+		return {txt: txt, id: btnid};
+	},
+	
+	// sets position of the obj related to the container at the position of type 'type'
+	// particularry obj would be a button
+	// container would be a wire
+	// type must be widehigh or topleft
+	_setPos: function(container, obj, type){
+		var left = 0, top = 0;
+		if(type === 'widehigh'){
+			left = toInt(container.style.width) - toInt(obj.style.width);
+			top = toInt(container.style.height) - toInt(obj.style.height);
+		}
+		obj.style.top = top;
+		obj.style.left = left;
+	}
+};
+
+

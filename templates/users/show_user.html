@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+	{% if found %}
+		The  user with e-mail {{ email }} was found. 
+		Below is the user data: 
+		Do you want to add this user to project:
+			Project id: {{project.id}}<br/>
+			Project name: {{project.name}}<br/>
+			Project Description: {{project.description}}
+		<button onclick="$("#form").submit();">Click here to add user</button>
+		<form action="." method="POST">
+			<input type="hideen" value="{{project.id}}" name="project_id"/>
+			<input type="hideen" value="{{added_user.id}}" name="added_user_id"/>
+		</form>
+	{% else %}
+		Sorry, but the user with e-mail: {{email}} isn't registered in the system.
+	{% endif %}
+{% endblock %}

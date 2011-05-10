@@ -1,0 +1,50 @@
+diff -r be8878b5399b back/_site_media/baseview.js
+--- a/back/_site_media/baseview.js	Fri Mar 19 15:54:49 2010 -0400
++++ b/back/_site_media/baseview.js	Fri Mar 19 16:06:11 2010 -0400
+@@ -187,7 +187,10 @@
+ 					break;
+ 				}
+ 			}
+-			if(!compatibile_types)return;
++			if(!compatibile_types){
++				genericgun.errorMessage('Can\'t connect object of type: ' + first.type + ' with object of type: ' + this.type);
++				return;
++			}
+ 
+ 			if(wm.connectedFirstClass === this){
+ 				;
+diff -r be8878b5399b back/_site_media/buttonmaker.js
+--- a/back/_site_media/buttonmaker.js	Fri Mar 19 15:54:49 2010 -0400
++++ b/back/_site_media/buttonmaker.js	Fri Mar 19 16:06:11 2010 -0400
+@@ -277,7 +277,7 @@
+ 						btn = btn.nextBtn;
+ 					}
+ 					if(btn.last){
+-						alert('too little boxes');
++						alert('too little boxes, split that wire first');
+ 						return;
+ 					}
+ 				} else {
+@@ -286,7 +286,7 @@
+ 						btn = btn.prevBtn;
+ 					}
+ 					if(btn.first){
+-						alert('too little boxes');
++						alert('too little boxes, split that wire first');
+ 						return;
+ 					}
+ 				}
+diff -r be8878b5399b back/_site_media/genericgui.js
+--- a/back/_site_media/genericgui.js	Fri Mar 19 15:54:49 2010 -0400
++++ b/back/_site_media/genericgui.js	Fri Mar 19 16:06:11 2010 -0400
+@@ -13,6 +13,10 @@
+ };
+ 
+ var genericgui = {
++	// shows error message
++	errorMessage: function(msgText){
++		alert(msgText);
++	}, 
+ 	// returns html representation of argumens of function that can be passed to javascript function
+ 	getParams: function(){
+ 		var len = arguments.length, ret = '';

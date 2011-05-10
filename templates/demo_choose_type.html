@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Choose diagram type to open:</h3>
+{% for type in types %}
+	<a href="/demo/{{type.id}}/">{{type.name}}</a><br/>
+{% endfor %}
+{% endblock %}

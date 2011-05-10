@@ -1,0 +1,43 @@
+<html>
+<head>
+	<title>diagramsonline.com</title>
+
+	{% block scriptinclude %}
+	{% endblock %}
+
+	<script type="text/javascript">
+		var diagramData = {
+			read_only: {{read_only}},
+			load: {{load}},
+			type: {{diagram.type.id}}// type of the diagram
+		};
+		{% if load %}
+			var serialized_data = eval({{serialized.data|safe}});
+		{% endif %}
+		var project_id = {{diagram.project.id}};
+		$(document).ready(function() {
+			initialize();
+			$("#save_form").hide();
+		});
+	</script>
+	<link rel="stylesheet" type="text/css" href="/site_media/StateDiagram.css" />
+	<link rel="stylesheet" type="text/css" href="/site_media/base.css" />
+	<link rel="stylesheet" type="text/css" href="/site_media/css/diagram/gui/base.css" />
+
+	<style  TYPE="text/css">
+	</style>
+</head>
+<body>
+<div id="userGui">
+	<div id="genericGui"></div>
+	<div id="specificGui"></div>
+<div id="main_div" class="MainDiv" style="height: 500px; width: 100%; top: 0px; left: 0px;"></div>
+</div>
+
+<form id="save_form" action="/save_view/" method="POST">
+	project id: <input type="text" id="idPid" name="project_id" value="{{diagram.project.id}}"/><br/>
+	diagram id: <input type="text" id="iddid" name="diagram_id" value="{{diagram.id}}"/><br/>
+	serialized: <textarea id="idSerializedData" name="serialized"></textarea>
+</form>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<head>
+	<meta name="keywords" content="uml diagram diagrams case tools modeling class diagram online diagramming tool saas"/>
+	<meta name="description" content="tool for creating class diagrams online"/>
+	<meta name="robots" content="index,follow"/>
+
+	<title>diagramsonline.com</title>
+
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+	{% block javascript %}
+	{% endblock %}
+
+	<link rel="stylesheet" type="text/css" href="/site_media/base_general.css" />
+	<link rel="stylesheet" type="text/css" href="/site_media/login.css" />
+</head>
+
+<body {% block bodyclass %}class="dashboard"{% endblock %}>
+<div id="container">
+	<div id="header">
+		<div id="branding">
+			<a href="/login/">login</a>
+			<a href="/projects/">projects</a>
+			<a href="/forum/">forum</a>
+		</div>
+		<div id="user-tools">
+			logged user: <strong>{{request.user}}</strong>,
+			<a href="/logout/">logout</a>
+		</div>
+	</div>
+	<div {% block contentid %}id="content" {% endblock %}>
+		{% block content %}
+		{% endblock %}
+	</div>
+</div>
+</body>
+</html>

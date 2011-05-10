@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block css %}
+	<link rel="stylesheet" type="text/css" href="/site_media/css/typing_test.css" />
+	<link rel="stylesheet" type="text/css" href="/site_media/css/forms.css" />
+
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('input').addClass('input-text');
+		$('.captcha').hide();
+		var realImg = $("#realImg");
+		realImg.attr('src', $('.captcha').attr('src'));
+		$('.captcha').hide();
+		realImg.addClass('captcha');
+		
+	})
+</script>
+{% endblock %}
+{% block content %}
+<center><table><tr><td>
+	<form action="." method="POST" id="register_form">
+		{% if not form %}
+			{{form.as_p}}
+		{% else %}
+			<table>
+				<tr><td colspan="3" align="center"><h3>Formularz rejestracyjny</h3></td></tr>
+				{% for field in form %}
+					{% ifequal field.label "Captcha" %}
+						<tr>
+							<td>
+								<label><span class="spanregister">Kod z obrazka poniżej: </span></label>
+							</td><td>
+								{% ifequal field.errors 'Invalid CAPTCHA' %}
+									Wpisałeś nieprawidłowy kod z obrazka
+								{% else %}	
+									{{field.errors}}
+								{% endifequal %}
+								{{field}}
+							</td><td></td>
+						</tr>
+						<tr>
+							<td></td><td><img id="realImg"/></td>
+						</tr>
+					{% else %}					
+						<tr><td></td><td>{{field.errors}}</td><td></td></tr>
+						<tr>
+							<td>
+								<label><span class="spanregister">{{field.label}}: </span></label>
+							</td><td>
+								{{field}}
+							</td><td>
+								&nbsp;
+							</td>
+						</tr>
+					{% endifequal %}
+						<tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+
+				{% endfor %}		
+			</table>
+		{% endif %}
+	</form>
+</td></tr><tr><td align="right">
+		<span class="green btn" onclick="$('#register_form').submit();">Zarejestruj</span>
+</td></table></center>
+{% endblock %}

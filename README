@@ -1,0 +1,14 @@
+required packages:
+	django-simple-captcha - http://code.google.com/p/django-simple-captcha/ - version 0.3.0
+	django-registration - https://bitbucket.org/ubernostrum/django-registration/ - version 0.8-alpha-1
+
+configuring application:
+	After creating database, go to admin interface, and add two new diagram types (no matter how will you call them)
+	then the first will represent class diagrams, and second diagram type will represent algorithmic state machine diagrams.
+
+creating diagrams:
+	after logging in, go to url: "/projects/". Click "Create new project" and create new project :). Then at url "/projects/" open newly created project by clicking "open" under project's name. Then click "add diagram", click "create" next to diagram's to create name - that will create diagram and redirect you to project's page. To open diagram click "open diagram" next to diagram to be opened.
+
+deployment:
+	1. change settings.PROD to True
+	2. run build.sh at build/_site_media

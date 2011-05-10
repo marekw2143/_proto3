@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+	choose diagram type to create:<br/>
+	{% for type in object_list %}
+		{{type.name}}<a href="/create_diagram/{{project.id}}/{{type.id}}/">create</a><br/>
+	{% endfor %}
+{% endblock %}

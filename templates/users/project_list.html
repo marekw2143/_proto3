@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block javascript %}
+	<script type="text/javascript">
+		var createProject = function(){
+			$("#createProject").submit();
+		};
+		var openProject = function(project_id){
+			$("#project_id").val(project_id);
+			$("#form").submit();
+		}
+	</script>
+{% endblock %}
+
+{% block content %}
+
+<strong><a href="/create_project/">Create new project</a></strong><br/><br/>
+<hr/>
+
+{% for p in object_list %}
+	Project name: {{p.name}}<br/>
+	Project Description: {{ p.description }}<br/>
+	<a href="{{p.get_absolute_url}}">open</a>
+	<br/><br/>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,95 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.4.1.js"></script>
+	<script type="text/javascript" src="cs.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+	<script type="text/javascript" src="collisions.js"></script>
+	<script type="text/javascript" src="connector.js"></script>
+	<script type="text/javascript" src="stylemanager.js"></script>
+	<script type="text/javascript" src="buttonmaker.js"></script>
+	<script type="text/javascript" src="idmanager.js"></script>
+	<script type="text/javascript" src="defaults.js"></script>
+	<script type="text/javascript" src="start.js"></script>
+	<script type="text/javascript" src="windowCreator.js"></script>
+	<script type="text/javascript" src="movemanager.js"></script>
+	<script type="text/javascript" src="resizer.js"></script>
+	<script type="text/javascript" src="serializator.js"></script>
+	<script type="text/javascript" src="classObj.js"></script>
+	<script type="text/javascript" src="ct.js"></script>
+	<script type="text/javascript" src="tooltipmanager.js"></script>
+	<script type="text/javascript" src="classViewManager.js"></script>
+	<script type="text/javascript" src="jquery.windows-engine.js"></script>
+	<script type="text/javascript">
+		var createDiv = function(){
+			wm.createWindow(300, 300,''); 
+		}
+	</script>
+
+	<style  TYPE="text/css">
+	.add{
+		background : gray;
+		color: white
+	}
+	.propertiesDiv{
+		background : black;
+		color : white
+	}
+	.movingDiv{
+		background : silver;
+	}
+	.content{
+		background : brown;
+	}
+	.wirehandle {
+		background : navy
+	}
+	.over{
+		background : pink
+	}
+	.marked{
+		background : red
+	}
+	.orange{
+		background: orange
+	}
+	.pink{
+		background: pink
+	}
+	.brown{
+		background: brown
+	}
+	.white{
+		background: white
+	}
+	.blue{
+		background: blue
+	}
+	.wire{
+		background: red;
+	}
+	.updown{
+		color: yellow;
+	}
+	.updown::hover{
+		color: red;
+	}
+	.classNameDiv{
+		background: blue;
+		color: white
+	}
+	</style>
+</head>
+<body>
+<div id="abc">
+	<input id="serialize" type="submit"/>
+	<input id="idMarkWireToDivide" value="divide wire" type="submit" />
+	<input id="idDeleteWire" value="delete wire" type="submit" />
+	<input id="idShowHideWirehandles" value="show boxes on wires" type="submit"/>
+	Collision with parent check <input id="idColParent" type="checkbox"/>
+	Collision with neighbours check <input id="idColNei" type="checkbox"/>
+	<span id="serialized"></span>
+</div>
+<div id="main_div" style="background: green; height: 500px; width: 500px; top: 0px; left: 0px;">
+</div>
+</body>
+</html>

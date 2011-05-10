@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+Project name: {{project.name}}<br/>
+<strong><a href="/add_diagram/{{project.id}}/">Add diagram</a></strong>
+<br/><br/>
+<hr/>
+<hr/>
+{% for d in object_list %}
+	Type: {{d.type.name}}<br/>
+	Description: {{ d.description }}<br/>
+	<a href="{{d.get_absolute_url}}">open diagram</a>&nbsp;|&nbsp;
+	<a href="/editdiagram/{{d.id}}/">diagram preferences</a>
+	<br/><br/>
+{% endfor %}
+{% endblock %}
