@@ -1,6 +1,8 @@
 required packages:
-	django-simple-captcha - http://code.google.com/p/django-simple-captcha/ - version 0.3.0
-	django-registration - https://bitbucket.org/ubernostrum/django-registration/ - version 0.8-alpha-1
+    all required packages are defined in requirements.txt, they can be installed by running: pip install -r requirements.txt
+    list of required packages: 
+        django-simple-captcha - http://code.google.com/p/django-simple-captcha/ - version 0.3.0
+        django-registration - https://bitbucket.org/ubernostrum/django-registration/ - version 0.8-alpha-1
 
 configuring application:
 	After creating database, go to admin interface, and add two new diagram types (no matter how will you call them)
