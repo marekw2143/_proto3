@@ -1,2 +1,5 @@
 https://bitbucket.org/ubernostrum/django-registration/downloads/django-registration-0.8-alpha-1.tar.gz
 http://django-simple-captcha.googlecode.com/files/django-simple-captcha-0.3.0.zip
+
+django-registration-defaults
+-e git://github.com/yourcelf/django-registration-defaults.git#egg=django-registration-defaults
